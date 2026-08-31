@@ -1,6 +1,11 @@
 services:
+<<<<<<< HEAD
  app-01:
     image: a7med421/hit-counter:1.1.0
+=======
+  app-01:
+    image: a7med421/hit-counter:v1.0
+>>>>>>> f2bc24c (WIP: make cadvisor labels visible)
     container_name: app-01
     networks:
       - internal-net
@@ -8,8 +13,13 @@ services:
     environment:
       - APP_INSTANCE_NAME=app-01
 
+<<<<<<< HEAD
  app-02:
     image: a7med421/hit-counter:1.1.0
+=======
+  app-02:
+    image: a7med421/hit-counter:v1.0
+>>>>>>> f2bc24c (WIP: make cadvisor labels visible)
     container_name: app-02
     networks:
       - internal-net
@@ -17,8 +27,13 @@ services:
     environment:
       - APP_INSTANCE_NAME=app-02
 
+<<<<<<< HEAD
  app-03:
     image: a7med421/hit-counter:1.1.0
+=======
+  app-03:
+    image: a7med421/hit-counter:v1.0
+>>>>>>> f2bc24c (WIP: make cadvisor labels visible)
     container_name: app-03
     networks:
       - internal-net
@@ -26,7 +41,7 @@ services:
     environment:
       - APP_INSTANCE_NAME=app-03
 
- nginx-01:
+  nginx-01:
     image: nginx:alpine
     container_name: internal-nginx-01
     restart: unless-stopped
@@ -40,10 +55,10 @@ services:
     networks:
       - internal-net
       - public-net
-   # ports:
-   #   - "8080:80"
+    # ports:
+    #   - "8080:80"
 
- nginx-02:
+  nginx-02:
     image: nginx:alpine
     container_name: internal-nginx-02
     restart: unless-stopped
@@ -57,10 +72,10 @@ services:
     networks:
       - internal-net
       - public-net
-   # ports:
-   #   - "8081:80"
+    # ports:
+    #   - "8081:80"
 
- haproxy-lb-01:
+  haproxy-lb-01:
     image: haproxy:alpine
     container_name: haproxy-lb-01
     restart: unless-stopped
@@ -73,6 +88,37 @@ services:
       - public-net
     ports:
       - "8080:80"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    privileged: true
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    depends_on:
+      - haproxy-lb-01
+    networks:
+      - public-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - cadvisor
+    networks:
+      - public-net
 
 networks:
   internal-net:
