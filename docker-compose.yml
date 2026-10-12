@@ -58,6 +58,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./nginx/nginx-conf-01/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/static:/usr/share/nginx/html:ro
     depends_on:
       - app-01
       - app-02
@@ -74,6 +75,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./nginx/nginx-conf-02/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/static:/usr/share/nginx/html:ro
     depends_on:
       - app-04
       - app-05
