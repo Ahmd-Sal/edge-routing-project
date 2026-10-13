@@ -76,7 +76,7 @@ jobs:
           echo "Waiting for app to respond..."
           max_attempts=30
           attempt=1
-          until curl --output /dev/null --silent --head --fail http://localhost:8082; do # the localhost port at the time of testing is 8082
+          until curl --output /dev/null --silent --head --fail http://localhost:8080; do 
             if [[ "$attempt" -ge "$max_attempts" ]]; then
               echo -e "\nTimed out waiting for services"
               exit 1
