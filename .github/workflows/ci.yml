@@ -91,7 +91,7 @@ jobs:
 
       - name: Run HTTP test
         run: |
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8082/api)
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api)
           echo "HTTP Status Code: $RESPONSE"
           if [ "$RESPONSE" -ne 200 ]; then
             echo -e "\nHealth check failed with status $RESPONSE"
