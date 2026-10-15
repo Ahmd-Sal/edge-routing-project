@@ -2,15 +2,40 @@ name: Go Backend & Infrastructure CI
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
-permissions: 
+permissions:
   contents: read
+  pull-requests: read
 
 jobs:
-  # Job 1: Test & Lint Go Microservice Code
+  # Job 0: Detect Changes First
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      go_files: ${{ steps.filter.outputs.go_files }}
+      docker_file: ${{ steps.filter.outputs.docker_file }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Filter Paths
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            go_files:
+              - 'backend/go.*'
+              - 'backend/**/*.go'
+            docker_file:
+              - 'backend/Dockerfile'
+
+  # Job 1: Test $ Lint Go Code -- ONLY TRIGGERS IF BACKEND CODE CHANGES
   go-quality-gate:
     name: Go Test & Lint
+    needs: changes
+    if: needs.changes.outputs.go_files == 'true'
     runs-on: ubuntu-latest
 
     defaults:
@@ -24,18 +49,19 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.26.5'
+          go-version: "1.26.5"
           cache: true
 
       - name: Run Go Vet (Static Analysis)
         run: go vet ./...
-        
+
         # TODO: add go test here
 
-
-  # Job 2: Multi-Stage Docker Build Validation
-  docker-build-check:
+  # Job 2: Multi-Stage Docker Build Validation -- ONLY TRIGGERS IF Dockerfile CHANGES
+  docker-build:
     name: Validate Docker Build
+    needs: [changes, go-quality-gate]
+    if: (needs.changes.outputs.docker_file == 'true' && needs.changes.outputs.go_files == 'false') || needs.go-quality-gate.result == 'success'
     runs-on: ubuntu-latest
 
     steps:
@@ -50,23 +76,23 @@ jobs:
         with:
           context: ./backend
           file: ./backend/Dockerfile
-          push: false  # Build test only, do not push to registry yet
+          push: false # Build test only, do not push to registry yet
           tags: go-backend:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # Job 3: Validate Docker Compose Configuration and Verify Application Health
+  # Job 3: Verify Application Health
   integration-test:
     name: Smoke Test Application
     runs-on: ubuntu-latest
-    needs: [go-quality-gate, docker-build-check]
+    needs: [go-quality-gate, docker-build]
+    if: always() &&
+      (needs.go-quality-gate.result == 'success' || needs.go-quality-gate.result == 'skipped') &&
+      (needs.docker-build.result == 'success' || needs.docker-build.result == 'skipped')
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Validate Compose File Syntax
-        run: docker compose config --quiet
 
       - name: Build and start services
         run: docker compose up -d --build
