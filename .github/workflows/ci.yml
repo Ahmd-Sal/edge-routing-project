@@ -109,7 +109,7 @@ jobs:
         run: |
           MY_TAG=${TAG:-a7med421/hit-counter:v1.0}
           echo "Using docker image tag: $MY_TAG"
-          docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d
+          docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
 
       - name: Wait for services to be ready
         run: |
