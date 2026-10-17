@@ -61,7 +61,8 @@ jobs:
   docker-build:
     name: Validate Docker Build
     needs: [changes, go-quality-gate]
-    if: (needs.changes.outputs.docker_file == 'true' && needs.changes.outputs.go_files == 'false') || needs.go-quality-gate.result == 'success'
+    if: (needs.changes.outputs.docker_file == 'true' && needs.changes.outputs.go_files == 'false')
+      || needs.go-quality-gate.result == 'success'
     runs-on: ubuntu-latest
 
     steps:
@@ -77,7 +78,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: false # Build test only, do not push to registry yet
-          tags: go-backend:test
+          tags: hit-counter:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -95,7 +96,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build and start services
-        run: docker compose up -d --build
+        run: docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d
 
       - name: Wait for services to be ready
         run: |

@@ -1,0 +1,12 @@
+services:
+  app-01:
+    image: hit-counter:test
+    pull_policy: never
+
+  app-02:
+    image: hit-counter:test
+    pull_policy: never
+
+  app-03:
+    image: hit-counter:test
+    pull_policy: never
