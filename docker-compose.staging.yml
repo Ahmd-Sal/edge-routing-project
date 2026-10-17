@@ -1,0 +1,12 @@
+services:
+  app-01:
+    image: $MY_TAG
+    pull_policy: if_not_present
+
+  app-02:
+    image: $MY_TAG
+    pull_policy: if_not_present
+
+  app-03:
+    image: $MY_TAG
+    pull_policy: if_not_present # because if TAG equals hit-counter:test you dont want to pull that image from docker default
