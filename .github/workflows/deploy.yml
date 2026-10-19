@@ -1,0 +1,27 @@
+name: Production Deployment
+
+on:
+  # Triggers after your CI pipeline finishes successfully
+  workflow_run:
+    workflows: ["Go Backend & Infrastructure CI"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    name: Push to registry
+    runs-on: ubuntu-latest
+
+    # if: >
+    #     github.event.workflow_run.conclusion == 'success' &&
+    #     github.event.workflow_run.event == 'push' &&
+    #     github.event.workflow_run.head_branch == 'main'
+
+    steps:
+      - name: understand github events
+        run: |
+          echo "--- Workflow Run Event Debug Info ---"
+          echo "Conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "Event Trigger: ${{ github.event.workflow_run.event }}"
+          echo "Head Branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Head SHA:    ${{ github.event.workflow_run.head_sha }}"

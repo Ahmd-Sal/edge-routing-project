@@ -29,7 +29,7 @@ func getApi(w http.ResponseWriter, r *http.Request) {
 func getHealth(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("[%s] %s requested from %s", r.Method, r.URL.Path, r.RemoteAddr)
-	fmt.Fprintf(w, "This is the Health endpoint /health")
+	fmt.Fprintf(w, "This is the Health endpoint /health ")
 }
 
 func main() {

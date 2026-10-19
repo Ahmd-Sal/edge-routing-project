@@ -65,7 +65,7 @@ jobs:
 
         # TODO: add go test here
 
-  # Job 2: Multi-Stage Docker Build Validation -- ONLY TRIGGERS IF Dockerfile CHANGES
+  # Job 2: Multi-Stage Docker Build Validation and Push -- ONLY TRIGGERS IF Dockerfile CHANGES
   docker-build:
     name: Validate Docker Build
     needs: [changes, go-quality-gate]
@@ -82,18 +82,26 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
       - name: Set Tag Variable
         id: set-tag
         run: |
-          # set the value of tag to test so job 3 know it should use the newly made image instead of pulling  
-          echo "TAG=hit-counter:test" >> $GITHUB_OUTPUT
+          # set the value of tag so job 3 know it should use the newly made image  
+          IMAGE_TAG="${{ vars.DOCKER_USERNAME }}/hit-counter:test-$(git rev-parse --short HEAD)"
+          echo "TAG=$IMAGE_TAG"
+          echo "TAG=$IMAGE_TAG" >> $GITHUB_OUTPUT
+
       - name: Build Go Backend Container Image
         uses: docker/build-push-action@v5
         with:
           context: ./backend
-          file: ./backend/Dockerfile
-          push: false # Build test only, do not push to registry yet
-          tags: hit-counter:test
+          push: true
+          tags: ${{ steps.set-tag.outputs.TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
