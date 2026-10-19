@@ -93,6 +93,7 @@ jobs:
         run: |
           # set the value of tag so job 3 know it should use the newly made image  
           IMAGE_TAG="${{ secrets.DOCKER_USERNAME }}/hit-counter:test-$(git rev-parse --short HEAD)"
+          echo "TAG=$IMAGE_TAG"
           echo "TAG=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Build Go Backend Container Image
