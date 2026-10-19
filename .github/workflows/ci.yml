@@ -93,6 +93,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: false # Build test only, do not push to registry yet
+          load: true
           tags: hit-counter:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
