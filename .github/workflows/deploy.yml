@@ -1,9 +1,9 @@
 name: Production Deployment
 
 on:
-  # Triggers after your CI pipeline finishes successfully
+  # Triggers after merging successfully
   workflow_run:
-    workflows: ["Go Backend & Infrastructure CI"]
+    workflows: ["Run Code Tests"]
     types:
       - completed
 

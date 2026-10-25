@@ -1,0 +1,64 @@
+name: Smoke Test
+
+on:
+  push:
+    branches: ["main"]
+    paths-ignore:
+      - "**.md"
+      - "LICENSE"
+  pull_request:
+    paths-ignore:
+      - "**.md"
+      - "LICENSE"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  build-and-test:
+    name: Build the app environment using docker compose
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build and start services
+
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d --build
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for app to respond..."
+           max_attempts=30
+           attempt=1
+           until curl --output /dev/null --silent --head --fail http://localhost:8080; do 
+             if [[ "$attempt" -ge "$max_attempts" ]]; then
+               echo -e "\nTimed out waiting for services"
+               exit 1
+             fi
+
+             printf '.'
+             attempt="$((attempt + 1))"
+             sleep 2
+           done
+
+           echo -e "\nService is ready!"
+
+      - name: Run HTTP test
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api)
+          echo "HTTP Status Code: $RESPONSE"
+          if [ "$RESPONSE" -ne 200 ]; then
+            echo -e "\nHealth check failed with status $RESPONSE"
+            exit 1
+          fi
+
+          echo -e "Curl test successfully returned 200 OK."
+
+      - name: Output Container Logs on Failure
+        if: failure()
+        run: docker compose logs

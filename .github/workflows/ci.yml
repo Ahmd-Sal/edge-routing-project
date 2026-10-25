@@ -1,29 +1,22 @@
-name: Go Backend & Infrastructure CI
+name: Run Code Tests
 
 on:
   push:
     branches: ["main"]
-    paths-ignore:
-      - "**.md"
-      - "LICENSE"
+    paths:
+      - "backend/**"
   pull_request:
-    branches: ["main"]
-    paths-ignore:
-      - "**.md"
-      - "LICENSE"
-
-permissions:
-  contents: read
-  pull-requests: read
+    paths:
+      - "backend/**"
+  workflow_dispatch:
 
 jobs:
-  # Job 0: Detect Changes First
-  changes:
+  # Detect Changes First
+  filter:
     name: Detect Changes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       go_files: ${{ steps.filter.outputs.go_files }}
-      docker_file: ${{ steps.filter.outputs.docker_file }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -34,128 +27,17 @@ jobs:
         with:
           filters: |
             go_files:
-              - 'backend/go.*'
-              - 'backend/**/*.go'
-            docker_file:
-              - 'backend/Dockerfile'
+              - 'backend/go-api/**'
 
-  # Job 1: Test $ Lint Go Code -- ONLY TRIGGERS IF BACKEND CODE CHANGES
-  go-quality-gate:
-    name: Go Test & Lint
-    needs: changes
-    if: needs.changes.outputs.go_files == 'true'
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: ./backend
-
+  run-tests:
+    runs-on: ubuntu-24.04
+    needs: filter
+    if: ${{ needs.filter.outputs.go_files == 'true' }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.26.5"
-          cache: true
-
-      - name: Run Go Vet (Static Analysis)
-        run: go vet ./...
-
-        # TODO: add go test here
-
-  # Job 2: Multi-Stage Docker Build Validation and Push -- ONLY TRIGGERS IF Dockerfile CHANGES
-  docker-build:
-    name: Validate Docker Build
-    needs: [changes, go-quality-gate]
-    if: (needs.changes.outputs.docker_file == 'true' && needs.changes.outputs.go_files == 'false')
-      || needs.go-quality-gate.result == 'success'
-    runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ steps.set-tag.outputs.TAG }}
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ vars.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
-
-      - name: Set Tag Variable
-        id: set-tag
-        run: |
-          # set the value of tag so job 3 know it should use the newly made image  
-          IMAGE_TAG="${{ vars.DOCKER_USERNAME }}/hit-counter:test-$(git rev-parse --short HEAD)"
-          echo "TAG=$IMAGE_TAG"
-          echo "TAG=$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-      - name: Build Go Backend Container Image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./backend
-          push: true
-          tags: ${{ steps.set-tag.outputs.TAG }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  # Job 3: Verify Application Health
-  integration-test:
-    name: Smoke Test Application
-    runs-on: ubuntu-latest
-    needs: [go-quality-gate, docker-build]
-    if: always() &&
-      (needs.go-quality-gate.result == 'success' || needs.go-quality-gate.result == 'skipped') &&
-      (needs.docker-build.result == 'success' || needs.docker-build.result == 'skipped')
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Build and start services
-        env:
-          TAG: ${{ needs.docker-build.outputs.image_tag }}
-
-        run: |
-          export MY_TAG=${TAG:-a7med421/hit-counter:v1.0}
-          echo "Using docker image tag: $MY_TAG"
-          docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
-
-      - name: Wait for services to be ready
-        run: |
-          echo "Waiting for app to respond..."
-          max_attempts=30
-          attempt=1
-          until curl --output /dev/null --silent --head --fail http://localhost:8080; do 
-            if [[ "$attempt" -ge "$max_attempts" ]]; then
-              echo -e "\nTimed out waiting for services"
-              exit 1
-            fi
-
-            printf '.'
-            attempt="$((attempt + 1))"
-            sleep 2
-          done
-
-          echo -e "\nService is ready!"
-
-      - name: Run HTTP test
-        run: |
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api)
-          echo "HTTP Status Code: $RESPONSE"
-          if [ "$RESPONSE" -ne 200 ]; then
-            echo -e "\nHealth check failed with status $RESPONSE"
-            exit 1
-          fi
-
-          echo -e "Curl test successfully returned 200 OK."
-
-      - name: Output Container Logs on Failure
-        if: failure()
-        run: docker compose logs
+      # Test & Lint Go Code -- ONLY TRIGGERS IF CODE CHANGES
+      - name: Setup Go and test the newly made changes
+        if: needs.filter.outputs.go_files == 'true'
+        uses: ./.github/actions/setup-and-test-go

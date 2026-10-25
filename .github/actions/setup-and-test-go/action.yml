@@ -1,0 +1,24 @@
+name: "Go Setup and Test"
+description: "Setup Go, run static analysis, and execute tests"
+
+inputs:
+  working-directory:
+    description: "Path to the Go module directory"
+    required: false
+    default: "backend/go-api"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: "${{ inputs.working-directory }}/go.mod"
+        cache: true
+
+    - name: Run Go Vet (Static Analysis)
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: go vet ./...
+
+      # TODO: add go test here
