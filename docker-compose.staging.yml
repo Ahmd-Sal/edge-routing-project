@@ -1,9 +1,18 @@
 services:
   app-01:
-    image: $MY_TAG
+    image: hit-counter:test
+    pull_policy: build
+    build:
+      context: ./backend/go-api/
 
   app-02:
-    image: $MY_TAG
+    image: hit-counter:test
+    pull_policy: build
+    build:
+      context: ./backend/go-api/
 
   app-03:
-    image: $MY_TAG
+    image: hit-counter:test
+    pull_policy: build
+    build:
+      context: ./backend/go-api/
