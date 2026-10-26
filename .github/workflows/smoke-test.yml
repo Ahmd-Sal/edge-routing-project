@@ -10,6 +10,7 @@ on:
     paths-ignore:
       - "**.md"
       - "LICENSE"
+      - ".github/utils/.release-please-manifest.json"
   workflow_dispatch:
 
 permissions:
