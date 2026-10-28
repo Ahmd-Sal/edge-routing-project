@@ -1,6 +1,6 @@
 services:
  app-01:
-    image: a7med421/hit-counter:v1.0
+    image: a7med421/hit-counter:1.1.0
     container_name: app-01
     networks:
       - internal-net
@@ -9,7 +9,7 @@ services:
       - APP_INSTANCE_NAME=app-01
 
  app-02:
-    image: a7med421/hit-counter:v1.0
+    image: a7med421/hit-counter:1.1.0
     container_name: app-02
     networks:
       - internal-net
@@ -18,7 +18,7 @@ services:
       - APP_INSTANCE_NAME=app-02
 
  app-03:
-    image: a7med421/hit-counter:v1.0
+    image: a7med421/hit-counter:1.1.0
     container_name: app-03
     networks:
       - internal-net
