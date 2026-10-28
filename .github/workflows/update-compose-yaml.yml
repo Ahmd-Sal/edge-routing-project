@@ -43,7 +43,7 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit_message: ${{ steps.generate-commit-message.outputs.commit_message }}
+          commit-message: ${{ steps.generate-commit-message.outputs.commit_message }}
           branch: chore/update-hit-counter-version
           delete-branch: true
           title: "chore: update hit-counter image version to ${{ inputs.version }}"
