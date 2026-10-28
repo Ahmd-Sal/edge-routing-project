@@ -1,0 +1,53 @@
+name: Update Compose Yaml
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to update the hit-counter image to"
+        required: true
+        type: string
+
+jobs:
+  update-manifests:
+    runs-on: ubuntu-24.04
+    environment: ${{ inputs.version }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main # Checking out the tip of main
+
+      - name: Validate version format
+        run: |
+          version="${{ inputs.version }}"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid version format: '$version'. Expected X.Y.Z (e.g., 1.2.3)"
+            exit 1
+          fi
+
+      - name: Generate commit message
+        id: generate-commit-message
+        run: |
+          commit_message="chore: update hit-counter image version to: ${{ inputs.version }} [skip ci]"
+          echo "commit_message=${commit_message}" >> "$GITHUB_OUTPUT"
+
+      - name: Update image tag
+        run: |
+          sed -i 's|hit-counter:[^[:space:]]*|hit-counter:${{ inputs.version }}|g' docker-compose.yml
+          git --no-pager diff # Display the differences
+
+      - name: Commit & push
+        if: ${{ !env.ACT }}
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit_message: ${{ steps.generate-commit-message.outputs.commit_message }}
+          branch: chore/update-hit-counter-version
+          delete-branch: true
+          title: "chore: update hit-counter image version to ${{ inputs.version }}"
+          body: |
+            Automated PR to update the `hit-counter` image tag version.
+
+            Triggered via workflow dispatch.
