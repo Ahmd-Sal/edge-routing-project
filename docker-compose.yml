@@ -1,11 +1,6 @@
 services:
-<<<<<<< HEAD
- app-01:
-    image: a7med421/hit-counter:1.1.0
-=======
   app-01:
-    image: a7med421/hit-counter:v1.0
->>>>>>> f2bc24c (WIP: make cadvisor labels visible)
+    image: a7med421/hit-counter:1.1.0
     container_name: app-01
     networks:
       - internal-net
@@ -13,13 +8,8 @@ services:
     environment:
       - APP_INSTANCE_NAME=app-01
 
-<<<<<<< HEAD
- app-02:
-    image: a7med421/hit-counter:1.1.0
-=======
   app-02:
-    image: a7med421/hit-counter:v1.0
->>>>>>> f2bc24c (WIP: make cadvisor labels visible)
+    image: a7med421/hit-counter:1.1.0
     container_name: app-02
     networks:
       - internal-net
@@ -27,13 +17,8 @@ services:
     environment:
       - APP_INSTANCE_NAME=app-02
 
-<<<<<<< HEAD
- app-03:
-    image: a7med421/hit-counter:1.1.0
-=======
   app-03:
-    image: a7med421/hit-counter:v1.0
->>>>>>> f2bc24c (WIP: make cadvisor labels visible)
+    image: a7med421/hit-counter:1.1.0
     container_name: app-03
     networks:
       - internal-net
