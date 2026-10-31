@@ -125,6 +125,5 @@ networks:
     internal: true
   monitoring-net:
     driver: bridge
-    internal: true
   public-net:
     driver: bridge
