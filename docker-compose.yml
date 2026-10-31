@@ -89,7 +89,7 @@ services:
     depends_on:
       - haproxy-lb-01
     networks:
-      - public-net
+      - monitoring-net
 
   prometheus:
     image: prom/prometheus:latest
@@ -103,7 +103,7 @@ services:
     depends_on:
       - cadvisor
     networks:
-      - public-net
+      - monitoring-net
 
   grafana:
     image: grafana/grafana:latest
@@ -117,10 +117,13 @@ services:
     depends_on:
       - prometheus
     networks:
-      - public-net
+      - monitoring-net
 
 networks:
   internal-net:
+    driver: bridge
+    internal: true
+  monitoring-net:
     driver: bridge
     internal: true
   public-net:
