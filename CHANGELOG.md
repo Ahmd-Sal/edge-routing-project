@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.1](https://github.com/Ahmd-Sal/edge-routing-project/compare/go-api@1.1.0...go-api@1.1.1) (2026-10-31)
+
+
+### Chores
+
+* add chores and revert sections to the changelog[skip ci] ([#48](https://github.com/Ahmd-Sal/edge-routing-project/issues/48)) ([8e6108f](https://github.com/Ahmd-Sal/edge-routing-project/commit/8e6108ff8789c2139c1b2af08c4018d63a858a65))
+* correct file name [skip ci] ([#44](https://github.com/Ahmd-Sal/edge-routing-project/issues/44)) ([27d8060](https://github.com/Ahmd-Sal/edge-routing-project/commit/27d80602246954c91303f6a19c31a311e46ed6c7))
+* **monitoring:** add Prometheus, Grafana, and cAdvisor stack ([#49](https://github.com/Ahmd-Sal/edge-routing-project/issues/49)) ([62c8903](https://github.com/Ahmd-Sal/edge-routing-project/commit/62c8903f0279395b9e84a93979965e5e924e4b6d))
+* update hit-counter image version to 1.1.0 ([#47](https://github.com/Ahmd-Sal/edge-routing-project/issues/47)) ([9412448](https://github.com/Ahmd-Sal/edge-routing-project/commit/941244898c53aa4f3b6cb03e73ee0c39cb05b9a5))
+
 ## [1.1.0](https://github.com/Ahmd-Sal/edge-routing-project/compare/go-api@1.0.0...go-api@1.1.0) (2026-10-28)
 
 
