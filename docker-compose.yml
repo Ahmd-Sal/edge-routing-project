@@ -104,6 +104,7 @@ services:
       - cadvisor
     networks:
       - monitoring-net
+      - public-net
 
   grafana:
     image: grafana/grafana:latest

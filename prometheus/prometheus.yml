@@ -3,5 +3,9 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets:
-        - cadvisor:8080
-
+          - cadvisor:8080
+  - job_name: haproxy-lb-01
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - haproxy-lb-01:8404
