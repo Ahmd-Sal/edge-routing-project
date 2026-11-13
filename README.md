@@ -4,6 +4,8 @@ This project features a multi tier containerized architecture where an HAProxy e
 
 The goal of this project is to practice how would an on-premise production system deployment would look like. Specially the traffic routing part. As well as practicing system design and DevOps tools. such as Github actions for ci/cd piplines, Prometheus and Grafana for Observability and monitoring, as well as learning how to setup traffic routing nodes.
 
+NOTE: This project is not production ready by any means. The project's main objective is to learn how to approach such type of deployment and some of the associated technologies.
+
 ## Project Objectives
 
 - Learn how to design networks, isolate tiers, and not leave a node unnecessarily exposed
